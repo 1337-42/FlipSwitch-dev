@@ -65,9 +65,16 @@ obfuscate: clean
 	python3 $(SCRIPTS_DIR)/obfuscate_and_replace.py $(BUILD_DIR)/main_temp_obf.c main_obf.c $(BUILD_DIR)/obfuscated_strings.h
 	cp $(BUILD_DIR)/main_temp_header.h .
 	cp $(BUILD_DIR)/obfuscated_strings.h .
-	cp func_obf_macros.h $(BUILD_DIR)/
+	@if [ ! -f func_obf_macros.h ]; then echo "Error: func_obf_macros.h not found!"; exit 1; fi
 	@echo "Step 4: Building fully obfuscated kernel module..."
-	make -C $(KDIR) M=$(PWD) EXTRA_CFLAGS="-include obfuscated_strings.h -include func_obf_macros.h -I$(PWD)/$(SRC_DIR)" obj-m+=main_obf.o modules
+	@if [ ! -f main_obf.c ]; then echo "Error: main_obf.c not found!"; exit 1; fi
+	@if [ ! -f obfuscated_strings.h ]; then echo "Error: obfuscated_strings.h not found!"; exit 1; fi
+	@if [ ! -f func_obf_macros.h ]; then echo "Error: func_obf_macros.h not found!"; exit 1; fi
+	@cp $(BUILD_DIR)/main_temp_header.h main_obf.h
+	@sed -i.bak 's/^obj-m += main\.o/obj-m += main_obf.o/' Makefile
+	make -C $(KDIR) M=$(PWD) EXTRA_CFLAGS="-I. -include $(PWD)/obfuscated_strings.h -include $(PWD)/func_obf_macros.h -I$(PWD)/$(SRC_DIR)" modules
+	@mv Makefile.bak Makefile
+	@rm -f main_obf.h
 	@echo "Step 5: Stripping debug information..."
 	strip --strip-debug --strip-unneeded main_obf.ko
 	mv main_obf.ko $(BUILD_DIR)/
