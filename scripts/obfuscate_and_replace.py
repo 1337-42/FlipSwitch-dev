@@ -32,9 +32,9 @@ def write_header(entries, header_file, key=0xAA):
         f.write('#ifndef OBFUSCATED_STRINGS_H\n#define OBFUSCATED_STRINGS_H\n\n')
         for entry in entries.values():
             arr = ', '.join(f'0x{b:02X}' for b in entry['obfuscated'])
-            f.write(f'static const unsigned char {entry['macro']}[] = {{{arr}}}; // "{entry['original']}"\n')
-            f.write(f'#define {entry['macro']}_LEN {len(entry['obfuscated'])}\n')
-            f.write(f'#define {entry['macro']}_KEY 0x{key:02X}\n')
+            f.write(f"static const unsigned char {entry['macro']}[] = {{{arr}}}; // \"{entry['original']}\"\n")
+            f.write(f"#define {entry['macro']}_LEN {len(entry['obfuscated'])}\n")
+            f.write(f"#define {entry['macro']}_KEY 0x{key:02X}\n")
         f.write('\n#endif // OBFUSCATED_STRINGS_H\n')
 
 def replace_placeholders(content, entries, key=0xAA):
